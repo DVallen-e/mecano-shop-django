@@ -1,39 +1,207 @@
+
 {% load static %}
 
 <!DOCTYPE html>
-<!-- vezi daca am pus lang ul ok de obicei trebuia sa mai fie ceva dupa fr  -->
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}{% endblock %} - Teyssier</title>
-<!-- inca nu exista acest css, ma gandeam sa punem tailwind -->
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body>
+<body class="bg-surface text-white">
 
-    <header>
-        <nav>
-            <a href="#">Panier</a>
-            <a href="#">Connexion</a>
-        </nav>
-    </header>
+    <div class="min-h-screen">
 
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+        <!-- ==================== HEADER ==================== -->
+        <header class="sticky top-0 z-40 border-b border-white/10 bg-black">
 
-    <footer>
-        <p>&copy; {% now "Y" %} shop page</p>
-    </footer>
-<!-- inca nu exista acest js-->
+            <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+
+                <!-- Logo -->
+                <a
+                    href="https://www.garageteyssier42.fr/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="shrink-0"
+                >
+                    <img
+                        src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+                        alt="Garage Teyssier"
+                        class="h-12 w-auto object-contain"
+                    >
+                </a>
+
+
+                <!-- Desktop Search -->
+                <div class="relative hidden max-w-xl flex-1 sm:flex">
+
+                    <svg
+                        class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Rechercher un produit..."
+                        class="w-full rounded-sm border border-white/15 bg-white/10 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 transition-colors focus:border-brand focus:outline-none"
+                    >
+
+                </div>
+
+
+                <!-- Cart -->
+                <a
+                    href="#"
+                    class="relative p-2 text-white transition-colors hover:text-brand"
+                    aria-label="Panier"
+                >
+
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                        <line x1="3" x2="21" y1="6" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+
+                </a>
+
+
+                <!-- Login -->
+                <a
+                    href="#"
+                    class="flex items-center gap-2 bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+                >
+
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+
+                    <span class="hidden sm:inline">
+                        Connexion / Inscription
+                    </span>
+
+                    <span class="sm:hidden">
+                        Compte
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==================== SHIPPING BANNER ==================== -->
+        <!-- it on the index.html -->
+
+
+        <!-- ==================== PAGE HEADER ==================== -->
+        <section class="mx-auto max-w-7xl px-4 pb-4 pt-10">
+
+            <div class="mb-1 flex items-end gap-3">
+
+                <div class="h-8 w-1 bg-brand"></div>
+
+                <h1 class="text-3xl font-bold uppercase tracking-tight">
+                    Notre Boutique
+                </h1>
+
+            </div>
+
+            <p class="ml-4 text-sm text-gray-400">
+                Pièces & consommables sélectionnés par nos techniciens
+            </p>
+
+        </section>
+
+
+        <!-- ==================== MOBILE SEARCH ==================== -->
+        <section class="mx-auto flex max-w-7xl gap-2 px-4 pb-4 sm:hidden">
+
+            <div class="relative flex-1">
+
+                <svg
+                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+
+                <input
+                    type="text"
+                    name="mobile_search"
+                    placeholder="Rechercher un produit..."
+                    class="w-full border border-white/15 bg-white/10 py-3 pl-10 pr-8 text-sm text-white placeholder-gray-400 transition-colors focus:border-brand focus:outline-none"
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================== MAIN CONTENT ==================== -->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer class="border-t border-white/10 bg-black">
+
+            <div class="mx-auto max-w-7xl px-4 py-6">
+
+                <p class="text-sm text-gray-400">
+                    &copy; {% now "Y" %} Garage Teyssier
+                </p>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>
+

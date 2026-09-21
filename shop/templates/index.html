@@ -6,18 +6,14 @@
 
 {% block extra_css %}
 
-<!-- inca nu exista acest css, ma gandeam sa punem tailwind -->
-<link rel="stylesheet" href="{% static 'css/product.css' %}">
 {% endblock %}
 
 {% block content %}
 
-<!-- 
-
-aici o sa fie toate divurile cu produsele app ului care o sa vina din admin panel 
-prima oara ne trebuie modelul xd
-
-
--->
+    {% if announcement %}
+        <div class="bg-brand py-2 text-center text-sm font-semibold tracking-wide text-white">
+            {{ announcement.text }}
+         </div>
+    {% endif %}
 
 {% endblock %}

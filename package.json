@@ -1,0 +1,28 @@
+{
+  "name": "service-shop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "dev": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/style.css --watch",
+    "build": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DVallen-e/mecano-shop-django.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DVallen-e/mecano-shop-django/issues"
+  },
+  "homepage": "https://github.com/DVallen-e/mecano-shop-django#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
+
