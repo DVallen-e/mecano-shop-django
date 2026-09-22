@@ -1,19 +1,371 @@
+
 {% extends "base.html" %}
 
-{% load static %}
+{% block title %}Shop{% endblock %} 
 
-{% block title %}Shop{% endblock %}
-
-{% block extra_css %}
-
-{% endblock %}
-
-{% block content %}
-
+{% block announcement %}
     {% if announcement %}
         <div class="bg-brand py-2 text-center text-sm font-semibold tracking-wide text-white">
             {{ announcement.text }}
-         </div>
+        </div>
     {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+        
+
+
+    <!-- ==================== CATEGORY TAGS ==================== -->
+
+<section class="mx-auto max-w-7xl px-4 pb-6 hidden sm:block">
+    <div class="flex flex-wrap gap-2">
+
+        <!-- Tous -->
+        <a
+            href="{% url 'index' %}"
+            class="
+                border px-4 py-1.5 text-sm font-semibold transition-colors
+                {% if not selected_tag %}
+                    border-brand bg-brand text-white
+                {% else %}
+                    border-white/20 bg-transparent text-gray-300 hover:border-brand hover:text-white
+                {% endif %}
+            "
+        >
+            Tous
+        </a>
+
+        {% for tag in tags %}
+            <a
+                href="{% url 'index' %}?tag={{ tag.text }}"
+                class="
+                    border px-4 py-1.5 text-sm font-semibold transition-colors
+                    {% if selected_tag == tag.text %}
+                        border-brand bg-brand text-white
+                    {% else %}
+                        border-white/20 bg-transparent text-gray-300 hover:border-brand hover:text-white
+                    {% endif %}
+                "
+            >
+                {{ tag.text }}
+            </a>
+        {% endfor %}
+
+    </div>
+
+    
+</section>
+
+
+
+
+    <!-- ==================== PRODUCTS ==================== -->
+
+    <section class="mx-auto max-w-7xl px-4 pb-20">
+
+        {% if products %}
+
+            <!-- ==================== MOBILE ==================== -->
+
+            <div class="flex flex-col divide-y divide-white/10 sm:hidden">
+
+                {% for product in products %}
+
+                    <article class="flex items-center gap-3 py-3">
+
+                        <!-- Product image -->
+
+                        <div class="h-20 w-20 shrink-0 overflow-hidden bg-surface-light">
+
+                            {% if product.image %}
+
+                                <img
+                                    src="{{ product.image.url }}"
+                                    alt="{{ product.name }}"
+                                    class="h-full w-full object-cover"
+                                    loading="lazy"
+                                >
+
+                            {% else %}
+
+                                <div class="flex h-full w-full items-center justify-center text-xs text-gray-600">
+                                    Pas d'image
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Product information -->
+
+                        <div class="min-w-0 flex-1">
+
+                            {% if product.tags.all %}
+
+                                <div class="mb-0.5 flex flex-wrap gap-1">
+
+                                    {% for tag in product.tags.all %}
+
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider text-brand">
+                                            {{ tag.text }}
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <h3 class="truncate text-sm font-bold leading-snug text-white">
+                                {{ product.name }}
+                            </h3>
+
+
+                            {% if product.description %}
+
+                                <p class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-gray-400">
+                                    {{ product.description }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <p class="mt-1 text-sm">
+                                <span class="font-extrabold text-white">
+                                    {{ product.price|floatformat:2 }}
+                                </span>
+
+                                <span class="text-xs font-bold text-white/80">
+                                    €
+                                </span>
+                            </p>
+
+                        </div>
+
+
+                        <!-- Cart -->
+
+                        <a
+                            href="#"
+                            class="shrink-0 bg-brand p-2.5 text-white transition-colors hover:bg-brand-dark"
+                            aria-label="Ajouter {{ product.name }} au panier"
+                        >
+
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                                <line x1="3" x2="21" y1="6" y2="6"/>
+                                <path d="M16 10a4 4 0 0 1-8 0"/>
+                            </svg>
+
+                        </a>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- ==================== DESKTOP ==================== -->
+
+            <div class="group/grid hidden grid-cols-2 gap-5 sm:grid lg:grid-cols-3 xl:grid-cols-4">
+
+                {% for product in products %}
+
+                    <article
+                        class="
+                            product-card
+                            flex flex-col
+                            border border-white/10
+                            bg-surface-light
+                            transition-all duration-300
+                            hover:z-10
+                            hover:scale-105
+                            hover:border-brand/60
+                            hover:shadow-2xl
+                            hover:shadow-black/60
+                        "
+                    >
+
+                        <!-- Product image -->
+
+                        <div class="relative h-48 overflow-hidden bg-[#222]">
+
+                            {% if product.image %}
+
+                                <img
+                                    src="{{ product.image.url }}"
+                                    alt="{{ product.name }}"
+                                    class="product-img h-full w-full object-cover transition-transform duration-500"
+                                    loading="lazy"
+                                >
+
+                            {% else %}
+
+                                <div class="flex h-full w-full items-center justify-center text-sm text-gray-600">
+                                    Pas d'image
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Product content -->
+
+                        <div class="flex flex-1 flex-col gap-3 p-4">
+
+                            <div>
+
+                                <!-- Tags -->
+
+                                {% if product.tags.all %}
+
+                                    <div class="flex flex-wrap gap-1.5">
+
+                                        {% for tag in product.tags.all %}
+
+                                            <span
+                                                class="
+                                                    inline-block
+                                                    rounded-full
+                                                    bg-brand/15
+                                                    px-2.5
+                                                    py-1
+                                                    text-[10px]
+                                                    font-bold
+                                                    uppercase
+                                                    tracking-widest
+                                                    text-brand
+                                                "
+                                            >
+                                                {{ tag.text }}
+                                            </span>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                <!-- Name -->
+
+                                <h3 class="mt-2 text-sm font-bold leading-snug text-white">
+                                    {{ product.name }}
+                                </h3>
+
+
+                                <!-- Description -->
+
+                                {% if product.description %}
+
+                                    <p class="mt-1 text-xs leading-relaxed text-gray-400">
+                                        {{ product.description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Price -->
+
+                            <div class="mt-auto text-2xl">
+
+                                <span class="font-extrabold text-white">
+                                    {{ product.price|floatformat:2 }}
+                                </span>
+
+                                <span class="text-sm font-bold text-white/80">
+                                    €
+                                </span>
+
+                            </div>
+
+
+                            <!-- Cart -->
+
+                            <a
+                                href="#"
+                                class="
+                                    flex w-full
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    bg-brand
+                                    py-2
+                                    text-sm
+                                    font-bold
+                                    text-white
+                                    transition-colors
+                                    hover:bg-brand-dark
+                                "
+                            >
+
+                                <svg
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                                    <line x1="3" x2="21" y1="6" y2="6"/>
+                                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                                </svg>
+
+                                Ajouter au panier
+
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- ==================== EMPTY STATE ==================== -->
+
+            <div class="py-24 text-center text-gray-500">
+
+                <svg
+                    class="mx-auto mb-4 h-12 w-12 opacity-30"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+
+                <p class="text-lg">
+                    Aucun produit disponible
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
 
 {% endblock %}
+

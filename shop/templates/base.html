@@ -1,10 +1,11 @@
-
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="fr">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_css %}{% endblock %}
+
 </head>
 
 <body class="bg-surface text-white">
@@ -20,27 +22,36 @@
     <div class="min-h-screen">
 
         <!-- ==================== HEADER ==================== -->
+
         <header class="sticky top-0 z-40 border-b border-white/10 bg-black">
 
             <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
 
                 <!-- Logo -->
+
                 <a
                     href="https://www.garageteyssier42.fr/"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="shrink-0"
                 >
+
                     <img
                         src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
                         alt="Garage Teyssier"
                         class="h-12 w-auto object-contain"
                     >
+
                 </a>
 
 
                 <!-- Desktop Search -->
-                <div class="relative hidden max-w-xl flex-1 sm:flex">
+
+                <form
+                    method="GET"
+                    action="{% url 'index' %}"
+                    class="relative hidden max-w-xl flex-1 sm:flex"
+                >
 
                     <svg
                         class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
@@ -57,14 +68,26 @@
                     <input
                         type="text"
                         name="search"
+                        value="{{ search }}"
                         placeholder="Rechercher un produit..."
                         class="w-full rounded-sm border border-white/15 bg-white/10 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 transition-colors focus:border-brand focus:outline-none"
                     >
 
-                </div>
+                    {% if selected_tag %}
+
+                        <input
+                            type="hidden"
+                            name="tag"
+                            value="{{ selected_tag }}"
+                        >
+
+                    {% endif %}
+
+                </form>
 
 
                 <!-- Cart -->
+
                 <a
                     href="#"
                     class="relative p-2 text-white transition-colors hover:text-brand"
@@ -88,6 +111,7 @@
 
 
                 <!-- Login -->
+
                 <a
                     href="#"
                     class="flex items-center gap-2 bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
@@ -120,11 +144,14 @@
         </header>
 
 
-        <!-- ==================== SHIPPING BANNER ==================== -->
-        <!-- it on the index.html -->
+        <!-- ==================== ANNOUNCEMENT ==================== -->
+
+        {% block announcement %}
+        {% endblock %}
 
 
         <!-- ==================== PAGE HEADER ==================== -->
+
         <section class="mx-auto max-w-7xl px-4 pb-4 pt-10">
 
             <div class="mb-1 flex items-end gap-3">
@@ -144,10 +171,17 @@
         </section>
 
 
-        <!-- ==================== MOBILE SEARCH ==================== -->
-        <section class="mx-auto flex max-w-7xl gap-2 px-4 pb-4 sm:hidden">
+        <!-- ==================== MOBILE SEARCH + CATEGORY ==================== -->
 
-            <div class="relative flex-1">
+        <section class="mx-auto flex max-w-7xl items-center gap-2 px-4 pb-4 sm:hidden">
+
+            <!-- Search -->
+
+            <form
+                method="GET"
+                action="{% url 'index' %}"
+                class="relative min-w-0 flex-1"
+            >
 
                 <svg
                     class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
@@ -157,16 +191,133 @@
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                 >
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
+
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="8"
+                    ></circle>
+
+                    <path
+                        d="m21 21-4.35-4.35"
+                    ></path>
+
                 </svg>
 
                 <input
                     type="text"
-                    name="mobile_search"
+                    name="search"
+                    value="{{ search }}"
                     placeholder="Rechercher un produit..."
                     class="w-full border border-white/15 bg-white/10 py-3 pl-10 pr-8 text-sm text-white placeholder-gray-400 transition-colors focus:border-brand focus:outline-none"
                 >
+
+                {% if selected_tag %}
+
+                    <input
+                        type="hidden"
+                        name="tag"
+                        value="{{ selected_tag }}"
+                    >
+
+                {% endif %}
+
+            </form>
+
+
+            <!-- Category -->
+
+            <div class="relative shrink-0">
+
+                <form
+                    method="GET"
+                    action="{% url 'index' %}"
+                >
+
+                    {% if search %}
+
+                        <input
+                            type="hidden"
+                            name="search"
+                            value="{{ search }}"
+                        >
+
+                    {% endif %}
+
+
+                    <select
+                        name="tag"
+                        onchange="this.form.submit()"
+                        class="
+                            h-[46px]
+                            appearance-none
+                            border
+                            border-white/15
+                            bg-white/10
+                            pl-3
+                            pr-8
+                            text-sm
+                            font-semibold
+                            text-white
+                            transition-colors
+                            focus:border-brand
+                            focus:outline-none
+                            cursor-pointer
+                        "
+                        style="color-scheme: dark;"
+                    >
+
+                        <option
+                            value=""
+                            class="bg-[#1a1a1a] text-white"
+                            {% if not selected_tag %}selected{% endif %}
+                        >
+                            Tous
+                        </option>
+
+
+                        {% for tag in tags %}
+
+                            <option
+                                value="{{ tag.text }}"
+                                class="bg-[#1a1a1a] text-white"
+                                {% if selected_tag == tag.text %}selected{% endif %}
+                            >
+                                {{ tag.text }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </form>
+
+
+                <!-- Dropdown arrow -->
+
+                <svg
+                    class="
+                        pointer-events-none
+                        absolute
+                        right-2.5
+                        top-1/2
+                        h-3.5
+                        w-3.5
+                        -translate-y-1/2
+                        text-gray-400
+                    "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path d="m6 9 6 6 6-6"/>
+
+                </svg>
+
+
 
             </div>
 
@@ -174,20 +325,62 @@
 
 
         <!-- ==================== MAIN CONTENT ==================== -->
+
         <main>
+
             {% block content %}
             {% endblock %}
+
         </main>
 
 
         <!-- ==================== FOOTER ==================== -->
-        <footer class="border-t border-white/10 bg-black">
 
-            <div class="mx-auto max-w-7xl px-4 py-6">
+        <footer class="border-t border-border bg-black py-8">
 
-                <p class="text-sm text-gray-400">
-                    &copy; {% now "Y" %} Garage Teyssier
-                </p>
+            <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-gray-500 sm:flex-row">
+
+                <div class="flex items-center gap-3">
+
+                    <img
+                        src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+                        alt="Garage Teyssier"
+                        class="h-8 object-contain opacity-70"
+                    >
+
+                    <span>
+                        © 2026 Garage Teyssier — Saint-Étienne (42)
+                    </span>
+
+                </div>
+
+
+                <div class="flex gap-6">
+
+                    <a
+                        href="tel:+33000000000"
+                        class="transition-colors hover:text-white"
+                    >
+                        Nous appeler
+                    </a>
+
+                    <a
+                        href="#"
+                        class="transition-colors hover:text-white"
+                    >
+                        Mentions légales
+                    </a>
+
+                    <a
+                        href="https://www.garageteyssier42.fr/"
+                        class="transition-colors hover:text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Site principal
+                    </a>
+
+                </div>
 
             </div>
 
@@ -197,11 +390,12 @@
 
 
     <!-- JavaScript -->
+
     <script src="{% static 'js/main.js' %}"></script>
 
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    {% endblock %}
 
 </body>
 
 </html>
-
