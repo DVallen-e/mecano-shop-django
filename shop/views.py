@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Announcement, Product, Tag
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.shortcuts import redirect
 from django.conf import settings
 
@@ -64,6 +64,7 @@ def google_login(request):
     )
 
     request.session["google_oauth_state"] = state
+    request.session["google_oauth_code_verifier"] = flow.code_verifier
 
     return redirect(authorization_url)
 
@@ -73,8 +74,9 @@ def google_callback(request):
     from google.auth.transport import requests
 
     state = request.session.get("google_oauth_state")
+    code_verifier = request.session.get("google_oauth_code_verifier")
 
-    if not state:
+    if not state or not code_verifier:
         return redirect("/")
 
     flow = Flow.from_client_config(
@@ -95,6 +97,7 @@ def google_callback(request):
     )
 
     flow.redirect_uri = settings.GOOGLE_REDIRECT_URI
+    flow.code_verifier = code_verifier
 
     flow.fetch_token(
         authorization_response=request.build_absolute_uri()
@@ -128,5 +131,12 @@ def google_callback(request):
 
     login(request, user)
 
-    # Delete state OAuth
     request.session.pop("google_oauth_state", None)
+    request.session.pop("google_oauth_code_verifier", None)
+
+    return redirect("/")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")

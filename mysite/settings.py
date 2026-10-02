@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,11 +29,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-from django.utils.translation import gettext_lazy as _ 
+from django.utils.translation import gettext_lazy as _
 
+# Admin and the rest of the site stay in French. Listing English here lets
+# LocaleMiddleware follow the browser Accept-Language header instead of LANGUAGE_CODE.
 LANGUAGES = [
-    ('fr', _('Francais')), 
-    ('en', _('English')),
+    ('fr', _('Français')),
 ]
 
 
@@ -56,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    # 'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

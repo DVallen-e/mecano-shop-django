@@ -10,4 +10,5 @@ urlpatterns = [
         views.google_callback,
         name="google_callback",
     ),
+    path("auth/logout/", views.logout_view, name="logout"),
 ]
