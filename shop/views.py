@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Announcement, Product, Tag
 from django.contrib.auth import get_user_model, login, logout
-from django.shortcuts import redirect
 from django.conf import settings
 
 User = get_user_model()
@@ -28,13 +29,87 @@ def index(request):
     })
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug)
+    product = get_object_or_404(
+        Product.objects.prefetch_related("tags"),
+        slug=slug,
+    )
 
     return render(
         request,
         "product_detail.html",
-        {"product": product}
+        {"product": product},
     )
+
+def add_to_cart(request, slug):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    product = get_object_or_404(Product, slug=slug)
+    try:
+        quantity = int(request.POST.get("quantity", "1"))
+    except (TypeError, ValueError):
+        messages.error(request, "Veuillez choisir une quantité valide.")
+        return redirect("product_detail", slug=product.slug)
+
+    if quantity < 1:
+        messages.error(request, "La quantité doit être supérieure à zéro.")
+        return redirect("product_detail", slug=product.slug)
+
+    cart_items = request.session.get("cart", {})
+    if not isinstance(cart_items, dict):
+        cart_items = {}
+
+    current_quantity = cart_items.get(product.slug, 0)
+    if type(current_quantity) is not int or current_quantity < 0:
+        current_quantity = 0
+    cart_items[product.slug] = current_quantity + quantity
+    request.session["cart"] = cart_items
+
+    messages.success(request, f"{product.name} ajouté au panier.")
+    return redirect("product_detail", slug=product.slug)
+
+
+def remove_from_cart(request, slug):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    cart_items = request.session.get("cart", {})
+    if isinstance(cart_items, dict) and slug in cart_items:
+        del cart_items[slug]
+        request.session["cart"] = cart_items
+
+    return redirect("cart")
+
+
+def cart(request):
+    cart_items = request.session.get("cart", {})
+    if not isinstance(cart_items, dict):
+        cart_items = {}
+
+    products = Product.objects.in_bulk(cart_items.keys(), field_name="slug")
+    rows = []
+    valid_cart = {}
+    total = 0
+
+    for slug, quantity in cart_items.items():
+        product = products.get(slug)
+        if product is None or type(quantity) is not int or quantity < 1:
+            continue
+
+        line_total = product.price * quantity
+        rows.append({
+            "product": product,
+            "quantity": quantity,
+            "line_total": line_total,
+        })
+        valid_cart[slug] = quantity
+        total += line_total
+
+    if valid_cart != cart_items:
+        request.session["cart"] = valid_cart
+
+    return render(request, "cart.html", {"cart_rows": rows, "cart_total": total})
+
 
 def google_login(request):
     from google_auth_oauthlib.flow import Flow

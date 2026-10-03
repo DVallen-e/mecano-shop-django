@@ -73,7 +73,10 @@
 
                 {% for product in products %}
 
-                    <article class="flex items-center gap-3 py-3">
+                    <a
+                        href="{% url 'product_detail' product.slug %}"
+                        class="flex items-center gap-3 py-3 transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+                    >
 
                         <!-- Product image -->
 
@@ -147,12 +150,11 @@
                         </div>
 
 
-                        <!-- Cart -->
+                        <!-- Product details -->
 
-                        <a
-                            href="#"
-                            class="shrink-0 bg-brand p-2.5 text-white transition-colors hover:bg-brand-dark"
-                            aria-label="Ajouter {{ product.name }} au panier"
+                        <span
+                            class="shrink-0 bg-brand p-2.5 text-white transition-colors"
+                            aria-hidden="true"
                         >
 
                             <svg
@@ -163,14 +165,13 @@
                                 viewBox="0 0 24 24"
                                 aria-hidden="true"
                             >
-                                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
-                                <line x1="3" x2="21" y1="6" y2="6"/>
-                                <path d="M16 10a4 4 0 0 1-8 0"/>
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
                             </svg>
 
-                        </a>
+                        </span>
 
-                    </article>
+                    </a>
 
                 {% endfor %}
 
@@ -183,7 +184,8 @@
 
                 {% for product in products %}
 
-                    <article
+                    <a
+                        href="{% url 'product_detail' product.slug %}"
                         class="
                             product-card
                             flex flex-col
@@ -195,6 +197,9 @@
                             hover:border-brand/60
                             hover:shadow-2xl
                             hover:shadow-black/60
+                            focus-visible:outline
+                            focus-visible:outline-2
+                            focus-visible:outline-brand
                         "
                     >
 
@@ -295,10 +300,9 @@
                             </div>
 
 
-                            <!-- Cart -->
+                            <!-- Product details -->
 
-                            <a
-                                href="#"
+                            <span
                                 class="
                                     flex w-full
                                     items-center
@@ -309,8 +313,6 @@
                                     text-sm
                                     font-bold
                                     text-white
-                                    transition-colors
-                                    hover:bg-brand-dark
                                 "
                             >
 
@@ -322,18 +324,17 @@
                                     viewBox="0 0 24 24"
                                     aria-hidden="true"
                                 >
-                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
-                                    <line x1="3" x2="21" y1="6" y2="6"/>
-                                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                                    <path d="M5 12h14"/>
+                                    <path d="m12 5 7 7-7 7"/>
                                 </svg>
 
-                                Ajouter au panier
+                                Voir le produit
 
-                            </a>
+                            </span>
 
                         </div>
 
-                    </article>
+                    </a>
 
                 {% endfor %}
 
@@ -368,4 +369,3 @@
     </section>
 
 {% endblock %}
-

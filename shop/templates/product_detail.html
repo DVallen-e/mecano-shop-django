@@ -1,1 +1,126 @@
-<h1>ASTA ESTE PAGINA PRODUSULUI</h1>
+{% extends "base.html" %}
+{% load l10n static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body_class %}product-detail-page{% endblock %}
+{% block desktop_search %}{% endblock %}
+{% block page_header %}{% endblock %}
+{% block shop_controls %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <nav class="product-breadcrumb" aria-label="Fil d’Ariane">
+        <a href="{% url 'index' %}">Boutique</a>
+        <span class="separator" aria-hidden="true">/</span>
+        {% for tag in product.tags.all %}
+            {% if forloop.first %}
+                <span>{{ tag.text }}</span>
+                <span class="separator" aria-hidden="true">/</span>
+            {% endif %}
+        {% endfor %}
+        <span aria-current="page">{{ product.name }}</span>
+    </nav>
+
+    <section class="product-layout" aria-labelledby="product-title">
+        <div class="product-gallery">
+            <div class="product-image">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <span class="product-badge">{% for tag in product.tags.all %}{% if forloop.first %}{{ tag.text }}{% endif %}{% empty %}Pièce auto{% endfor %}</span>
+                {% else %}
+                    <div class="product-image-placeholder">Photo du produit indisponible</div>
+                {% endif %}
+            </div>
+            {% if product.image %}
+                <div class="product-thumbnails" aria-label="Images du produit">
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="product-details">
+            {% for tag in product.tags.all %}
+                {% if forloop.first %}<p class="product-category">{{ tag.text }}</p>{% endif %}
+            {% empty %}
+                <p class="product-category">Pièce automobile</p>
+            {% endfor %}
+            <h1 id="product-title" class="product-title">{{ product.name }}</h1>
+            {% if product.description %}
+                <p class="product-description">{{ product.description }}</p>
+            {% endif %}
+
+            <div class="product-price-block">
+                <p class="product-price" data-product-price="{{ product.price|unlocalize }}">
+                    <span data-price-amount>{{ product.price|floatformat:2 }}</span> <small>€</small>
+                </p>
+                <p class="product-total" data-product-total>Total pour 1 article</p>
+            </div>
+
+            {% if product.in_stock %}
+                <form class="product-purchase" data-product-purchase method="post" action="{% url 'add_to_cart' product.slug %}">
+                    {% csrf_token %}
+                    <div class="product-quantity" aria-label="Quantité">
+                        <button type="button" data-quantity-step="-1" aria-label="Diminuer la quantité">−</button>
+                        <input type="number" name="quantity" value="1" min="1" aria-label="Quantité" data-quantity-input>
+                        <button type="button" data-quantity-step="1" aria-label="Augmenter la quantité">+</button>
+                    </div>
+                    <button class="product-add-button" type="submit">
+                        <span aria-hidden="true">▣</span> Ajouter au panier
+                    </button>
+                    <a class="product-back-button" href="{% url 'index' %}">← Retour</a>
+                </form>
+            {% else %}
+                <p class="product-unavailable" role="status">Produit actuellement indisponible</p>
+            {% endif %}
+
+            <div class="product-benefits" aria-label="Services">
+                <div class="product-benefit">
+                    <span class="product-benefit-icon" aria-hidden="true">📦</span>
+                    <strong>Livraison gratuite</strong>
+                    <span>dès 80 €</span>
+                </div>
+                <div class="product-benefit">
+                    <span class="product-benefit-icon" aria-hidden="true">🔧</span>
+                    <strong>Retrait atelier</strong>
+                    <span>Saint-Étienne</span>
+                </div>
+                <div class="product-benefit">
+                    <span class="product-benefit-icon" aria-hidden="true">↩</span>
+                    <strong>Retour 30 jours</strong>
+                    <span>satisfait ou remboursé</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="product-information" aria-labelledby="product-information-title">
+        <h2 id="product-information-title">Informations produit</h2>
+        <dl class="product-specs">
+            <div class="product-spec">
+                <dt>Référence</dt>
+                <dd>{{ product.slug }}</dd>
+            </div>
+            <div class="product-spec">
+                <dt>Catégorie</dt>
+                <dd>{% for tag in product.tags.all %}{{ tag.text }}{% if not forloop.last %}, {% endif %}{% empty %}Pièce automobile{% endfor %}</dd>
+            </div>
+            <div class="product-spec">
+                <dt>Disponibilité</dt>
+                <dd>{% if product.in_stock %}En stock{% else %}Indisponible{% endif %}</dd>
+            </div>
+            <div class="product-spec">
+                <dt>Prix</dt>
+                <dd>{{ product.price|floatformat:2 }} €</dd>
+            </div>
+        </dl>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/product_detail.js' %}" defer></script>
+{% endblock %}

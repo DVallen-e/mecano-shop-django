@@ -17,7 +17,7 @@
 
 </head>
 
-<body class="bg-surface text-white">
+<body class="bg-surface text-white {% block body_class %}{% endblock %}">
 
     <div class="min-h-screen">
 
@@ -33,7 +33,7 @@
                     href="https://www.garageteyssier42.fr/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="shrink-0"
+                    class="site-header-logo shrink-0"
                 >
 
                     <img
@@ -47,11 +47,12 @@
 
                 <!-- Desktop Search -->
 
-                <form
-                    method="GET"
-                    action="{% url 'index' %}"
-                    class="relative hidden max-w-xl flex-1 sm:flex"
-                >
+                {% block desktop_search %}
+                    <form
+                        method="GET"
+                        action="{% url 'index' %}"
+                        class="{% block desktop_search_class %}relative hidden max-w-xl flex-1 sm:flex{% endblock %}"
+                    >
 
                     <svg
                         class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
@@ -83,15 +84,17 @@
 
                     {% endif %}
 
-                </form>
+                    </form>
+                {% endblock %}
 
 
                 <!-- Cart -->
 
                 <a
-                    href="#"
-                    class="relative p-2 text-white transition-colors hover:text-brand"
-                    aria-label="Panier"
+                    href="{% url 'cart' %}"
+                    class="site-header-cart relative p-2 text-white transition-colors hover:text-brand"
+                    aria-label="Panier, {{ cart_item_count }} article{{ cart_item_count|pluralize }}"
+                    title="Panier"
                 >
 
                     <svg
@@ -106,6 +109,11 @@
                         <line x1="3" x2="21" y1="6" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
+                    {% if cart_item_count %}
+                        <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-white">
+                            {{ cart_item_count }}
+                        </span>
+                    {% endif %}
 
                 </a>
 
@@ -114,7 +122,7 @@
 
                 {% if user.is_authenticated %}
 
-                    <div class="flex items-center gap-3">
+                    <div class="site-header-account flex items-center gap-3">
 
                         <span class="hidden max-w-[12rem] truncate text-sm text-white/80 sm:inline">
                             {{ user.get_full_name|default:user.email }}
@@ -136,7 +144,7 @@
 
                     <a
                         href="{% url 'google_login' %}"
-                        class="flex items-center gap-2 bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+                        class="site-header-login flex items-center gap-2 bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
                     >
 
                         <svg
@@ -162,7 +170,6 @@
                     </a>
 
                 {% endif %}
-
             </div>
 
         </header>
@@ -176,6 +183,7 @@
 
         <!-- ==================== PAGE HEADER ==================== -->
 
+        {% block page_header %}
         <section class="mx-auto max-w-7xl px-4 pb-4 pt-10">
 
             <div class="mb-1 flex items-end gap-3">
@@ -193,10 +201,12 @@
             </p>
 
         </section>
+        {% endblock %}
 
 
         <!-- ==================== MOBILE SEARCH + CATEGORY ==================== -->
 
+        {% block shop_controls %}
         <section class="mx-auto flex max-w-7xl items-center gap-2 px-4 pb-4 sm:hidden">
 
             <!-- Search -->
@@ -293,7 +303,7 @@
 
                         <option
                             value=""
-                            class="bg-[#1a1a1a] text-white"
+                            class="bg-surface-light text-white"
                             {% if not selected_tag %}selected{% endif %}
                         >
                             Tous
@@ -304,7 +314,7 @@
 
                             <option
                                 value="{{ tag.text }}"
-                                class="bg-[#1a1a1a] text-white"
+                                class="bg-surface-light text-white"
                                 {% if selected_tag == tag.text %}selected{% endif %}
                             >
                                 {{ tag.text }}
@@ -346,11 +356,22 @@
             </div>
 
         </section>
+        {% endblock %}
 
 
         <!-- ==================== MAIN CONTENT ==================== -->
 
         <main>
+
+            {% if messages %}
+                <div class="mx-auto max-w-7xl px-4 pt-5" aria-live="polite">
+                    {% for message in messages %}
+                        <p class="border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-white">
+                            {{ message }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             {% block content %}
             {% endblock %}
@@ -360,9 +381,9 @@
 
         <!-- ==================== FOOTER ==================== -->
 
-        <footer class="border-t border-border bg-black py-8">
+        <footer class="border-t border-border bg-black py-10 md:py-12">
 
-            <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-gray-500 sm:flex-row">
+            <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 text-center text-xs leading-6 text-gray-500 sm:flex-row sm:px-8 sm:text-left">
 
                 <div class="flex items-center gap-3">
 
@@ -379,7 +400,7 @@
                 </div>
 
 
-                <div class="flex gap-6">
+                <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:justify-end">
 
                     <a
                         href="tel:+33000000000"

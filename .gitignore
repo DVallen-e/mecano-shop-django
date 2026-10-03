@@ -16,7 +16,13 @@ db.sqlite3
 .env
 
 # Static/media
-/static/
+/static/*
+!/static/css/
+!/static/js/
+/static/css/*
+!/static/css/product_detail.css
+/static/js/*
+!/static/js/product_detail.js
 /media/
 
 # IDE

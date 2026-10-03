@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Panier{% endblock %}
+{% block page_header %}{% endblock %}
+{% block shop_controls %}{% endblock %}
+{% block announcement %}{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-5xl px-5 pb-20 pt-10 md:px-8 md:pt-14">
+    <div class="mb-9 border-b border-white/10 pb-6">
+      <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-brand">Garage Teyssier</p>
+      <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl">Votre panier</h1>
+    </div>
+
+    {% if cart_rows %}
+      <div class="space-y-4">
+        {% for row in cart_rows %}
+          <article class="flex flex-col gap-5 border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-center sm:p-6">
+            {% if row.product.image %}
+              <img
+                src="{{ row.product.image.url }}"
+                alt="{{ row.product.name }}"
+                class="h-28 w-full bg-surface-light object-cover sm:w-36"
+              >
+            {% else %}
+              <div class="flex h-28 w-full items-center justify-center bg-surface-light text-xs text-gray-500 sm:w-36">
+                Image indisponible
+              </div>
+            {% endif %}
+            <div class="min-w-0 flex-1">
+              <h2 class="text-lg font-bold leading-snug">{{ row.product.name }}</h2>
+              <p class="mt-2 text-sm text-gray-400">
+                {{ row.quantity }} × {{ row.product.price|floatformat:2 }} €
+              </p>
+            </div>
+            <div class="flex items-center justify-between gap-5 sm:flex-col sm:items-end">
+              <p class="text-lg font-bold">{{ row.line_total|floatformat:2 }} €</p>
+              <form method="post" action="{% url 'remove_from_cart' row.product.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="text-xs text-gray-400 underline underline-offset-4 transition-colors hover:text-white">
+                  Retirer
+                </button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <div class="mt-8 flex flex-col items-stretch justify-between gap-6 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
+        <a href="{% url 'index' %}" class="text-sm text-gray-400 transition-colors hover:text-white">
+          ← Continuer les achats
+        </a>
+        <div class="text-right">
+          <p class="text-sm text-gray-400">Total</p>
+          <p class="mt-1 text-3xl font-extrabold">{{ cart_total|floatformat:2 }} €</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="border border-white/10 bg-white/[0.03] px-6 py-14 text-center sm:py-20">
+        <p class="text-lg font-semibold">Votre panier est vide pour le moment.</p>
+        <p class="mt-2 text-sm text-gray-400">Découvrez nos pièces et consommables pour votre véhicule.</p>
+        <a href="{% url 'index' %}" class="mt-6 inline-flex bg-brand px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-dark">
+          Découvrir la boutique
+        </a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
