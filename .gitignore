@@ -21,6 +21,7 @@ db.sqlite3
 !/static/js/
 /static/css/*
 !/static/css/product_detail.css
+!/static/css/cart.css
 /static/js/*
 !/static/js/product_detail.js
 /media/

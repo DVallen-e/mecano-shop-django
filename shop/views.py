@@ -86,7 +86,38 @@ def cart(request):
     if not isinstance(cart_items, dict):
         cart_items = {}
 
-    products = Product.objects.in_bulk(cart_items.keys(), field_name="slug")
+    checkout_error = None
+    products = Product.objects.prefetch_related("tags").in_bulk(
+        cart_items.keys(),
+        field_name="slug",
+    )
+    if request.method == "POST":
+        remove_slug = request.POST.get("remove_item")
+        update_item = request.POST.get("update_item")
+
+        if remove_slug in cart_items:
+            del cart_items[remove_slug]
+        elif update_item:
+            slug, separator, action = update_item.partition(":")
+            if separator and slug in cart_items and slug in products:
+                quantity = cart_items[slug]
+                if type(quantity) is not int or quantity < 1:
+                    quantity = 1
+
+                if action == "decrease":
+                    quantity -= 1
+                elif action == "increase":
+                    quantity += 1
+
+                if quantity < 1:
+                    del cart_items[slug]
+                else:
+                    cart_items[slug] = quantity
+        elif request.POST.get("submit_order") == "1":
+            checkout_error = "La validation de commande n'est pas disponible pour le moment."
+
+        request.session["cart"] = cart_items
+
     rows = []
     valid_cart = {}
     total = 0
@@ -108,7 +139,15 @@ def cart(request):
     if valid_cart != cart_items:
         request.session["cart"] = valid_cart
 
-    return render(request, "cart.html", {"cart_rows": rows, "cart_total": total})
+    return render(request, "cart.html", {
+        "cart_items": rows,
+        "cart_rows": rows,
+        "cart_total": total,
+        "subtotal": total,
+        "transport_fee": 0,
+        "total": total,
+        "checkout_error": checkout_error,
+    })
 
 
 def google_login(request):

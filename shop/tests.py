@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Product
+from .models import Product, Tag
 
 
 class ProductDetailTests(TestCase):
@@ -70,8 +70,49 @@ class CartTests(TestCase):
 
         response = self.client.get(reverse("cart"))
         self.assertContains(response, "Votre panier")
+        self.assertContains(response, self.product.name)
+        self.assertContains(response, reverse("product_detail", args=[self.product.slug]))
         self.assertEqual(response.context["cart_item_count"], 2)
         self.assertEqual(response.context["cart_total"], Decimal("25.00"))
+        self.assertEqual(response.context["subtotal"], Decimal("25.00"))
+        self.assertEqual(response.context["cart_items"][0]["quantity"], 2)
+
+    def test_cart_displays_product_tags_and_handles_missing_images(self):
+        tag = Tag.objects.create(text="Moteur")
+        self.product.tags.add(tag)
+        session = self.client.session
+        session["cart"] = {self.product.slug: 1}
+        session.save()
+
+        response = self.client.get(reverse("cart"))
+
+        self.assertContains(response, "Moteur")
+        self.assertContains(response, "Photo indisponible")
+
+    def test_cart_quantity_controls_update_session(self):
+        session = self.client.session
+        session["cart"] = {self.product.slug: 2}
+        session.save()
+
+        self.client.post(
+            reverse("cart"),
+            {"update_item": f"{self.product.slug}:increase"},
+        )
+
+        self.assertEqual(self.client.session["cart"], {self.product.slug: 3})
+
+    def test_cart_does_not_claim_an_order_was_placed(self):
+        session = self.client.session
+        session["cart"] = {self.product.slug: 1}
+        session.save()
+
+        response = self.client.post(
+            reverse("cart"),
+            {"submit_order": "1"},
+        )
+
+        self.assertContains(response, "La validation de commande")
+        self.assertEqual(self.client.session["cart"], {self.product.slug: 1})
 
     def test_add_to_cart_rejects_non_positive_quantity(self):
         response = self.client.post(

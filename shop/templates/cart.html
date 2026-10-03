@@ -1,68 +1,240 @@
-{% extends "base.html" %}
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finaliser ma commande | Garage Teyssier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+</head>
+<body class="cart-page">
+  <header class="cart-header">
+    <div class="cart-header__inner">
+      <a href="{% url 'index' %}" aria-label="Retour à la boutique" class="cart-header__logo">
+        <img
+          src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+          alt="Garage Teyssier"
+        >
+      </a>
+      <div class="cart-header__actions">
+        <a
+          href="{% url 'cart' %}"
+          class="cart-header__cart"
+          aria-label="Panier, {{ cart_item_count }} article{{ cart_item_count|pluralize }}"
+          title="Voir le panier"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+            <line x1="3" x2="21" y1="6" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          {% if cart_item_count %}
+            <span class="cart-header__count">{{ cart_item_count }}</span>
+          {% endif %}
+        </a>
+        {% if user.is_authenticated %}
+          <div class="cart-header__account">
+            <span>{{ user.get_full_name|default:user.email }}</span>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="cart-button cart-button--muted">Déconnexion</button>
+            </form>
+          </div>
+        {% else %}
+          <a href="{% url 'google_login' %}" class="cart-button cart-button--brand cart-header__login">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="cart-header__login-full">Connexion / Inscription</span>
+            <span class="cart-header__login-short">Compte</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
 
-{% block title %}Panier{% endblock %}
-{% block page_header %}{% endblock %}
-{% block shop_controls %}{% endblock %}
-{% block announcement %}{% endblock %}
+  <div class="cart-breadcrumb-bar">
+    <nav class="cart-breadcrumb" aria-label="Fil d’Ariane">
+      <a href="{% url 'index' %}">Boutique</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Commande</span>
+    </nav>
+  </div>
 
-{% block content %}
-  <section class="mx-auto max-w-5xl px-5 pb-20 pt-10 md:px-8 md:pt-14">
-    <div class="mb-9 border-b border-white/10 pb-6">
-      <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-brand">Garage Teyssier</p>
-      <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl">Votre panier</h1>
+  <main class="cart-main">
+    <div class="cart-page-heading">
+      <div class="cart-page-heading__title-row">
+        <span class="cart-page-heading__accent" aria-hidden="true"></span>
+        <h1>Finaliser ma commande</h1>
+      </div>
+      <p>Vérifiez votre panier et choisissez votre mode de réception.</p>
     </div>
 
-    {% if cart_rows %}
-      <div class="space-y-4">
-        {% for row in cart_rows %}
-          <article class="flex flex-col gap-5 border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-center sm:p-6">
-            {% if row.product.image %}
-              <img
-                src="{{ row.product.image.url }}"
-                alt="{{ row.product.name }}"
-                class="h-28 w-full bg-surface-light object-cover sm:w-36"
-              >
-            {% else %}
-              <div class="flex h-28 w-full items-center justify-center bg-surface-light text-xs text-gray-500 sm:w-36">
-                Image indisponible
-              </div>
-            {% endif %}
-            <div class="min-w-0 flex-1">
-              <h2 class="text-lg font-bold leading-snug">{{ row.product.name }}</h2>
-              <p class="mt-2 text-sm text-gray-400">
-                {{ row.quantity }} × {{ row.product.price|floatformat:2 }} €
-              </p>
-            </div>
-            <div class="flex items-center justify-between gap-5 sm:flex-col sm:items-end">
-              <p class="text-lg font-bold">{{ row.line_total|floatformat:2 }} €</p>
-              <form method="post" action="{% url 'remove_from_cart' row.product.slug %}">
-                {% csrf_token %}
-                <button type="submit" class="text-xs text-gray-400 underline underline-offset-4 transition-colors hover:text-white">
-                  Retirer
-                </button>
-              </form>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-
-      <div class="mt-8 flex flex-col items-stretch justify-between gap-6 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
-        <a href="{% url 'index' %}" class="text-sm text-gray-400 transition-colors hover:text-white">
-          ← Continuer les achats
-        </a>
-        <div class="text-right">
-          <p class="text-sm text-gray-400">Total</p>
-          <p class="mt-1 text-3xl font-extrabold">{{ cart_total|floatformat:2 }} €</p>
-        </div>
-      </div>
-    {% else %}
-      <div class="border border-white/10 bg-white/[0.03] px-6 py-14 text-center sm:py-20">
-        <p class="text-lg font-semibold">Votre panier est vide pour le moment.</p>
-        <p class="mt-2 text-sm text-gray-400">Découvrez nos pièces et consommables pour votre véhicule.</p>
-        <a href="{% url 'index' %}" class="mt-6 inline-flex bg-brand px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-dark">
-          Découvrir la boutique
-        </a>
-      </div>
+    {% if checkout_error %}
+      <p class="cart-alert" role="alert">{{ checkout_error }}</p>
     {% endif %}
-  </section>
-{% endblock %}
+
+    {% if not cart_items %}
+      <section class="cart-empty">
+        <svg class="cart-empty__icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+          <line x1="3" x2="21" y1="6" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <h2>Votre panier est vide</h2>
+        <p>Ajoutez des produits pour commencer votre commande.</p>
+        <a href="{% url 'index' %}" class="cart-button cart-button--brand cart-empty__link">
+          Découvrir les produits
+        </a>
+      </section>
+    {% else %}
+      <form method="post" action="{% url 'cart' %}">
+        {% csrf_token %}
+        <div class="cart-layout">
+          <div class="cart-content">
+            <section class="cart-card">
+              <div class="cart-card__heading">
+                <h2>Votre panier</h2>
+                <span>{{ cart_item_count }} article{{ cart_item_count|pluralize }}</span>
+              </div>
+
+              <div class="cart-items">
+                {% for item in cart_items %}
+                  <article class="cart-item">
+                    <a href="{% url 'product_detail' item.product.slug %}" class="cart-item__image">
+                      {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                      {% else %}
+                        <span>Photo indisponible</span>
+                      {% endif %}
+                    </a>
+
+                    <div class="cart-item__details">
+                      {% with first_tag=item.product.tags.first %}
+                        {% if first_tag %}
+                          <p class="cart-item__tag">{{ first_tag.text }}</p>
+                        {% endif %}
+                      {% endwith %}
+                      <a href="{% url 'product_detail' item.product.slug %}" class="cart-item__name">
+                        {{ item.product.name }}
+                      </a>
+                      <p class="cart-item__description">{{ item.product.description }}</p>
+                      <p class="cart-item__price">{{ item.product.price|floatformat:2 }} €</p>
+                    </div>
+
+                    <div class="cart-item__controls">
+                      <div class="cart-quantity">
+                        <button
+                          type="submit"
+                          name="update_item"
+                          value="{{ item.product.slug }}:decrease"
+                          formnovalidate
+                          aria-label="Réduire la quantité de {{ item.product.name }}"
+                        >−</button>
+                        <span>{{ item.quantity }}</span>
+                        <button
+                          type="submit"
+                          name="update_item"
+                          value="{{ item.product.slug }}:increase"
+                          formnovalidate
+                          aria-label="Augmenter la quantité de {{ item.product.name }}"
+                        >+</button>
+                      </div>
+                      <div class="cart-item__total">
+                        <p>{{ item.line_total|floatformat:2 }} €</p>
+                        <button
+                          type="submit"
+                          name="remove_item"
+                          value="{{ item.product.slug }}"
+                          formnovalidate
+                        >Supprimer</button>
+                      </div>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="cart-card cart-contact">
+              <h2>Vos coordonnées</h2>
+              <div class="cart-contact__fields">
+                <label>
+                  <span>Prénom</span>
+                  <input name="first_name" type="text" placeholder="Jean" autocomplete="given-name" required>
+                </label>
+                <label>
+                  <span>Nom</span>
+                  <input name="last_name" type="text" placeholder="Dupont" autocomplete="family-name" required>
+                </label>
+                <label>
+                  <span>E-mail</span>
+                  <input name="email" type="email" placeholder="jean@exemple.fr" autocomplete="email" required>
+                </label>
+                <label>
+                  <span>Téléphone</span>
+                  <input name="phone" type="tel" placeholder="06 00 00 00 00" autocomplete="tel" required>
+                </label>
+              </div>
+            </section>
+          </div>
+
+          <aside class="cart-card cart-summary">
+            <h2>Récapitulatif</h2>
+            <div class="cart-summary__lines">
+              <div>
+                <span>Sous-total</span>
+                <span>{{ subtotal|floatformat:2 }} €</span>
+              </div>
+              <div>
+                <span>Frais de transport</span>
+                {% if transport_fee %}
+                  <span>{{ transport_fee|floatformat:2 }} €</span>
+                {% else %}
+                  <span class="cart-summary__free">Gratuits</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="cart-summary__total">
+              <div>
+                <p>Total TTC</p>
+                <p>TVA incluse</p>
+              </div>
+              <p>{{ total|floatformat:2 }} €</p>
+            </div>
+            <button type="submit" name="submit_order" value="1" class="cart-button cart-button--brand cart-summary__submit">
+              Confirmer la commande
+            </button>
+            <p class="cart-summary__note">
+              Aucun paiement immédiat. La compatibilité des pièces est vérifiée par l’atelier avant confirmation.
+            </p>
+            <div class="cart-summary__security">
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <span>Données protégées et commande sécurisée</span>
+            </div>
+          </aside>
+        </div>
+      </form>
+    {% endif %}
+  </main>
+
+  <footer class="cart-footer">
+    <div class="cart-footer__inner">
+      <div class="cart-footer__brand">
+        <img
+          src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+          alt="Garage Teyssier"
+        >
+        <span>© 2026 Garage Teyssier — Saint-Étienne (42)</span>
+      </div>
+      <a href="{% url 'index' %}">Continuer mes achats</a>
+    </div>
+  </footer>
+</body>
+</html>
