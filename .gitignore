@@ -8,6 +8,10 @@ venv/
 .venv/
 env/
 
+node_modules/
+.node_modules/
+node_modules/
+
 # Django
 *.sqlite3
 db.sqlite3
@@ -17,13 +21,9 @@ db.sqlite3
 
 # Static/media
 /static/*
-!/static/css/
+
 !/static/js/
-/static/css/*
-!/static/css/product_detail.css
-!/static/css/cart.css
 /static/js/*
-!/static/js/product_detail.js
 /media/
 
 # IDE
