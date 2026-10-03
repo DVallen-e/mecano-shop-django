@@ -46,3 +46,21 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductCharacteristic(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="characteristics",
+    )
+    name = models.CharField(max_length=100)
+    value = models.TextField()
+
+    class Meta:
+        ordering = ("id",)
+        verbose_name = "Product characteristic"
+        verbose_name_plural = "Product characteristics"
+
+    def __str__(self):
+        return f"{self.name}: {self.value}"

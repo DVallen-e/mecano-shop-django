@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from .models import Announcement, Product, Tag
+from .models import Announcement, Product, ProductCharacteristic, Tag
 
 
 @admin.register(Announcement)
@@ -13,6 +13,12 @@ class AnnouncementAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ("text",)
+
+
+class ProductCharacteristicInline(admin.TabularInline):
+    model = ProductCharacteristic
+    extra = 1
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -25,3 +31,5 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         "slug": ("name",),
     }
+
+    inlines = (ProductCharacteristicInline,)

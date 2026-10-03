@@ -30,7 +30,7 @@ def index(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(
-        Product.objects.prefetch_related("tags"),
+        Product.objects.prefetch_related("tags", "characteristics"),
         slug=slug,
     )
 

@@ -1,9 +1,10 @@
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Product, Tag
+from .models import Product, ProductCharacteristic, Tag
 
 
 class ProductDetailTests(TestCase):
@@ -32,6 +33,43 @@ class ProductDetailTests(TestCase):
         self.assertContains(response, 'class="bg-surface text-white product-detail-page"')
         self.assertContains(response, "Ajouter au panier")
         self.assertContains(response, 'name="quantity"')
+
+    def test_product_detail_displays_admin_managed_characteristics(self):
+        ProductCharacteristic.objects.create(
+            product=self.product,
+            name="Couleur",
+            value="Noir",
+        )
+        ProductCharacteristic.objects.create(
+            product=self.product,
+            name="Compatibilité",
+            value="Boîtes manuelles",
+        )
+
+        response = self.client.get(
+            reverse("product_detail", args=[self.product.slug])
+        )
+
+        self.assertContains(response, "Couleur")
+        self.assertContains(response, "Noir")
+        self.assertContains(response, "Compatibilité")
+        self.assertContains(response, "Boîtes manuelles")
+
+    def test_product_admin_includes_characteristic_inline(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="test-password",
+        )
+        self.client.force_login(admin_user)
+
+        response = self.client.get(
+            reverse("admin:shop_product_change", args=[self.product.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="characteristics-0-name"')
+        self.assertContains(response, 'name="characteristics-0-value"')
 
     def test_out_of_stock_product_cannot_be_added_from_detail_page(self):
         self.product.in_stock = False

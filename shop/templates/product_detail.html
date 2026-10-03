@@ -116,6 +116,12 @@
                 <dt>Prix</dt>
                 <dd>{{ product.price|floatformat:2 }} €</dd>
             </div>
+            {% for characteristic in product.characteristics.all %}
+                <div class="product-spec">
+                    <dt>{{ characteristic.name }}</dt>
+                    <dd>{{ characteristic.value }}</dd>
+                </div>
+            {% endfor %}
         </dl>
     </section>
 </div>
