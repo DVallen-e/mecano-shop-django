@@ -8,9 +8,8 @@ venv/
 .venv/
 env/
 
-node_modules/
+**/node_modules/
 .node_modules/
-node_modules/
 
 # Django
 *.sqlite3
