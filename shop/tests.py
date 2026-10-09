@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 
 from .models import Product, ProductCharacteristic, Tag
@@ -17,6 +18,12 @@ class ProductDetailTests(TestCase):
         )
 
     def test_product_detail_displays_product_information_and_actions(self):
+        self.client.force_login(
+            get_user_model().objects.create_user(
+                username="buyer",
+                email="buyer@example.com",
+            )
+        )
         response = self.client.get(
             reverse("product_detail", args=[self.product.slug])
         )
@@ -33,6 +40,15 @@ class ProductDetailTests(TestCase):
         self.assertContains(response, 'class="bg-surface text-white product-detail-page"')
         self.assertContains(response, "Ajouter au panier")
         self.assertContains(response, 'name="quantity"')
+
+    def test_anonymous_product_detail_prompts_for_login_instead_of_add_to_cart(self):
+        response = self.client.get(
+            reverse("product_detail", args=[self.product.slug])
+        )
+
+        self.assertContains(response, "Connectez-vous pour ajouter au panier")
+        self.assertContains(response, reverse("login"))
+        self.assertNotContains(response, 'data-product-purchase')
 
     def test_product_detail_displays_admin_managed_characteristics(self):
         ProductCharacteristic.objects.create(
@@ -90,6 +106,59 @@ class CartTests(TestCase):
             slug="huile-moteur",
             price="12.50",
         )
+        self.user = get_user_model().objects.create_user(
+            username="buyer",
+            email="buyer@example.com",
+        )
+        self.client.force_login(self.user)
+
+    def test_anonymous_user_cannot_add_product_to_cart(self):
+        self.client.logout()
+
+        response = self.client.post(
+            reverse("add_to_cart", args=[self.product.slug]),
+            {"quantity": "2"},
+        )
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('product_detail', args=[self.product.slug])}",
+        )
+        self.assertNotIn("cart", self.client.session)
+
+    def test_login_page_offers_google_and_apple_options(self):
+        self.client.logout()
+        response = self.client.get(reverse("login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Continuer avec Google")
+        self.assertContains(response, "Continuer avec Apple")
+        self.assertContains(response, 'disabled')
+        self.assertContains(response, reverse("google_login"))
+
+    @override_settings(APPLE_LOGIN_ENABLED=True)
+    def test_configured_apple_button_uses_allauth_apple_login_route(self):
+        self.client.logout()
+        response = self.client.get(reverse("login"))
+
+        self.assertContains(response, reverse("apple_login"))
+        self.assertNotContains(response, "disponible après la configuration")
+
+    def test_profile_requires_authentication_and_uses_profile_design(self):
+        self.client.logout()
+        response = self.client.get(reverse("profile"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('profile')}",
+        )
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Mon compte")
+        self.assertContains(response, "Aucune commande")
 
     def test_add_to_cart_updates_header_count_and_cart_total(self):
         response = self.client.post(

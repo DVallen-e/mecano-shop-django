@@ -4,8 +4,23 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Announcement, Product, Tag
 from django.contrib.auth import get_user_model, login, logout
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 User = get_user_model()
+
+
+def _safe_login_redirect(request, target):
+    if target and url_has_allowed_host_and_scheme(
+        target,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return target
+    return reverse("profile")
+
+
 def index(request):
     selected_tag = request.GET.get("tag")
     query = request.GET.get("search", "")
@@ -45,6 +60,12 @@ def add_to_cart(request, slug):
         return HttpResponseNotAllowed(["POST"])
 
     product = get_object_or_404(Product, slug=slug)
+    if not request.user.is_authenticated:
+        messages.info(request, "Connectez-vous pour ajouter un produit au panier.")
+        login_url = reverse("login")
+        next_url = reverse("product_detail", args=[product.slug])
+        return redirect(f"{login_url}?next={next_url}")
+
     try:
         quantity = int(request.POST.get("quantity", "1"))
     except (TypeError, ValueError):
@@ -150,6 +171,25 @@ def cart(request):
     })
 
 
+def login_page(request):
+    next_url = _safe_login_redirect(request, request.GET.get("next"))
+    if request.user.is_authenticated:
+        return redirect(next_url)
+
+    return render(request, "login.html", {
+        "next": next_url,
+        "apple_login_enabled": settings.APPLE_LOGIN_ENABLED,
+    })
+
+
+@login_required(login_url="login")
+def profile(request):
+    return render(request, "profile.html", {
+        "orders": [],
+        "profile": None,
+    })
+
+
 def google_login(request):
     from google_auth_oauthlib.flow import Flow
 
@@ -179,6 +219,10 @@ def google_login(request):
 
     request.session["google_oauth_state"] = state
     request.session["google_oauth_code_verifier"] = flow.code_verifier
+    request.session["google_oauth_next"] = _safe_login_redirect(
+        request,
+        request.GET.get("next"),
+    )
 
     return redirect(authorization_url)
 
@@ -243,12 +287,20 @@ def google_callback(request):
         )
 
 
-    login(request, user)
+    login(
+        request,
+        user,
+        backend="django.contrib.auth.backends.ModelBackend",
+    )
 
+    next_url = _safe_login_redirect(
+        request,
+        request.session.pop("google_oauth_next", None),
+    )
     request.session.pop("google_oauth_state", None)
     request.session.pop("google_oauth_code_verifier", None)
 
-    return redirect("/")
+    return redirect(next_url)
 
 
 def logout_view(request):

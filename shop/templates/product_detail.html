@@ -60,7 +60,7 @@
                 <p class="product-total" data-product-total>Total pour 1 article</p>
             </div>
 
-            {% if product.in_stock %}
+            {% if product.in_stock and user.is_authenticated %}
                 <form class="product-purchase" data-product-purchase method="post" action="{% url 'add_to_cart' product.slug %}">
                     {% csrf_token %}
                     <div class="product-quantity" aria-label="Quantité">
@@ -73,6 +73,14 @@
                     </button>
                     <a class="product-back-button" href="{% url 'index' %}">← Retour</a>
                 </form>
+            {% elif product.in_stock %}
+                <a
+                    class="product-add-button inline-flex items-center justify-center"
+                    href="{% url 'login' %}?next={% url 'product_detail' product.slug %}"
+                >
+                    Connectez-vous pour ajouter au panier
+                </a>
+                <a class="product-back-button" href="{% url 'index' %}">← Retour</a>
             {% else %}
                 <p class="product-unavailable" role="status">Produit actuellement indisponible</p>
             {% endif %}

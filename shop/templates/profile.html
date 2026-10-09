@@ -1,0 +1,273 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon compte | Garage Teyssier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="min-h-screen bg-[#111] font-sans text-white">
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-black">
+    <div class="mx-auto flex min-h-18 max-w-7xl items-center gap-4 px-4">
+      <a href="{% url 'index' %}" class="shrink-0" aria-label="Retour à la boutique">
+        <img
+          src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+          alt="Garage Teyssier"
+          class="h-12 w-auto object-contain"
+        >
+      </a>
+
+      <div class="flex-1"></div>
+
+      <a
+        href="{% url 'cart' %}"
+        class="relative p-2 transition-colors hover:text-[#c12026]"
+        aria-label="Voir le panier"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+          <line x1="3" x2="21" y1="6" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        {% if cart_item_count %}
+          <span class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#c12026] px-1 text-[10px] font-bold">
+            {{ cart_item_count }}
+          </span>
+        {% endif %}
+      </a>
+
+      <a
+        href="{% url 'logout' %}"
+        class="flex items-center gap-2 border border-white/15 px-3 py-2 text-xs font-bold transition-colors hover:border-[#c12026] hover:text-[#c12026] sm:px-4 sm:text-sm"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10 17l5-5-5-5"></path>
+          <path d="M15 12H3"></path>
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+        </svg>
+        <span class="hidden sm:inline">Déconnexion</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="border-b border-white/10 bg-black">
+    <nav class="mx-auto flex max-w-7xl items-center gap-2 px-4 py-4 text-xs text-gray-500">
+      <a href="{% url 'index' %}" class="transition-colors hover:text-[#c12026]">Boutique</a>
+      <span>/</span>
+      <span class="text-white">Mon compte</span>
+    </nav>
+  </div>
+
+  <main class="mx-auto max-w-7xl px-4 py-10 lg:py-14">
+    <div class="mb-10">
+      <div class="mb-2 flex items-center gap-3">
+        <span class="h-8 w-1 bg-[#c12026]" aria-hidden="true"></span>
+        <h1 class="text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">Mon compte</h1>
+      </div>
+      <p class="ml-4 text-sm text-gray-400">
+        Retrouvez vos informations et suivez toutes vos commandes.
+      </p>
+    </div>
+
+    <div class="grid items-start gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
+      <aside class="border border-white/10 bg-[#1a1a1a] lg:sticky lg:top-24">
+        <div class="border-b border-white/10 p-6 text-center">
+          <span class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#c12026]/15 text-2xl font-extrabold text-[#c12026]">
+            {{ user.first_name|default:user.username|slice:":1"|upper }}
+          </span>
+          <h2 class="mt-4 text-lg font-bold">
+            {% if user.get_full_name %}
+              {{ user.get_full_name }}
+            {% else %}
+              {{ user.username }}
+            {% endif %}
+          </h2>
+          <p class="mt-1 break-all text-xs text-gray-500">{{ user.email }}</p>
+        </div>
+
+        <dl class="divide-y divide-white/10 px-5">
+          <div class="flex items-center justify-between gap-3 py-4">
+            <dt class="text-xs text-gray-500">Client depuis</dt>
+            <dd class="text-xs font-bold">{{ user.date_joined|date:"M Y" }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-3 py-4">
+            <dt class="text-xs text-gray-500">Commandes</dt>
+            <dd class="text-xs font-bold">{{ orders|length }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-3 py-4">
+            <dt class="text-xs text-gray-500">Téléphone</dt>
+            <dd class="text-xs font-bold">{{ profile.phone|default:"Non renseigné" }}</dd>
+          </div>
+        </dl>
+
+        <div class="p-5">
+          <a
+            href="{% url 'index' %}"
+            class="flex w-full items-center justify-center bg-[#c12026] px-4 py-3 text-sm font-bold transition-colors hover:bg-[#9a1a1f]"
+          >
+            Continuer mes achats
+          </a>
+        </div>
+      </aside>
+
+      <section>
+        <div class="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c12026]">Historique</p>
+            <h2 class="mt-1 text-xl font-bold">Mes commandes</h2>
+          </div>
+          {% if orders %}
+            <p class="text-xs text-gray-500">
+              {{ orders|length }} commande{{ orders|length|pluralize }}
+            </p>
+          {% endif %}
+        </div>
+
+        {% if orders %}
+          <div class="flex flex-col gap-4">
+            {% for order in orders %}
+              <details class="group border border-white/10 bg-[#1a1a1a] open:border-[#c12026]/50">
+                <summary class="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] items-center gap-4 p-4 sm:grid-cols-[1fr_1fr_auto_auto] sm:p-5">
+                  <div>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Commande</p>
+                    <p class="mt-1 text-sm font-extrabold">#{{ order.reference|default:order.id }}</p>
+                  </div>
+
+                  <div class="hidden sm:block">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Date</p>
+                    <p class="mt-1 text-sm font-semibold">{{ order.created_at|date:"d/m/Y" }}</p>
+                  </div>
+
+                  <div class="text-right sm:text-left">
+                    {% if order.status == "pending" %}
+                      <span class="inline-flex bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                        En attente
+                      </span>
+                    {% elif order.status == "confirmed" %}
+                      <span class="inline-flex bg-blue-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                        Confirmée
+                      </span>
+                    {% elif order.status == "shipped" %}
+                      <span class="inline-flex bg-violet-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-400">
+                        Expédiée
+                      </span>
+                    {% elif order.status == "completed" %}
+                      <span class="inline-flex bg-green-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-green-400">
+                        Terminée
+                      </span>
+                    {% elif order.status == "cancelled" %}
+                      <span class="inline-flex bg-red-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400">
+                        Annulée
+                      </span>
+                    {% else %}
+                      <span class="inline-flex bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-300">
+                        {{ order.get_status_display|default:order.status }}
+                      </span>
+                    {% endif %}
+                  </div>
+
+                  <div class="col-span-2 flex items-center justify-between border-t border-white/10 pt-3 sm:col-span-1 sm:border-0 sm:pt-0">
+                    <div class="sm:text-right">
+                      <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Total</p>
+                      <p class="mt-1 font-extrabold">{{ order.total|floatformat:2 }} €</p>
+                    </div>
+                    <svg class="ml-5 h-5 w-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                  </div>
+
+                  <p class="col-span-2 text-xs text-gray-500 sm:hidden">
+                    {{ order.created_at|date:"d/m/Y" }}
+                  </p>
+                </summary>
+
+                <div class="border-t border-white/10 px-4 pb-5 pt-4 sm:px-5">
+                  <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Articles commandés</h3>
+                    <span class="text-xs text-gray-500">
+                      {{ order.items.all|length }} produit{{ order.items.all|length|pluralize }}
+                    </span>
+                  </div>
+
+                  <div class="divide-y divide-white/10 border-y border-white/10">
+                    {% for item in order.items.all %}
+                      <div class="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3 py-3">
+                        <div class="h-14 overflow-hidden bg-[#222]">
+                          {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="h-full w-full object-cover">
+                          {% else %}
+                            <span class="flex h-full items-center justify-center text-[9px] text-gray-600">Sans image</span>
+                          {% endif %}
+                        </div>
+                        <div class="min-w-0">
+                          <p class="truncate text-sm font-bold">{{ item.product.name }}</p>
+                          <p class="mt-1 text-xs text-gray-500">Quantité : {{ item.quantity }}</p>
+                        </div>
+                        <p class="text-sm font-bold">{{ item.line_total|floatformat:2 }} €</p>
+                      </div>
+                    {% empty %}
+                      <p class="py-4 text-sm text-gray-500">Les détails de cette commande ne sont pas disponibles.</p>
+                    {% endfor %}
+                  </div>
+
+                  <div class="mt-4 grid gap-2 text-xs sm:ml-auto sm:max-w-xs">
+                    <div class="flex justify-between text-gray-500">
+                      <span>Sous-total</span>
+                      <span class="text-gray-300">{{ order.subtotal|floatformat:2 }} €</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500">
+                      <span>Frais de transport</span>
+                      <span class="text-gray-300">{{ order.transport_fee|floatformat:2 }} €</span>
+                    </div>
+                    <div class="flex justify-between border-t border-white/10 pt-2 font-bold">
+                      <span>Total TTC</span>
+                      <span>{{ order.total|floatformat:2 }} €</span>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="border border-white/10 bg-[#1a1a1a] px-6 py-14 text-center">
+            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/5 text-gray-500">
+              <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7h18"></path>
+                <path d="M5 7l1 13h12l1-13"></path>
+                <path d="M9 11v5M15 11v5"></path>
+                <path d="M8 7V4h8v3"></path>
+              </svg>
+            </span>
+            <h3 class="mt-5 text-lg font-bold">Aucune commande</h3>
+            <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-gray-400">
+              Vous n’avez pas encore passé de commande. Découvrez les produits sélectionnés par nos techniciens.
+            </p>
+            <a href="{% url 'index' %}" class="mt-6 inline-flex bg-[#c12026] px-6 py-3 text-sm font-bold hover:bg-[#9a1a1f]">
+              Voir la boutique
+            </a>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </main>
+
+  <footer class="mt-12 border-t border-white/10 bg-black py-8">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-gray-500 sm:flex-row">
+      <div class="flex items-center gap-3">
+        <img
+          src="https://www.garageteyssier42.fr/wp-content/uploads/2026/03/Logo_header.webp"
+          alt="Garage Teyssier"
+          class="h-8 object-contain opacity-70"
+        >
+        <span>© 2026 Garage Teyssier — Saint-Étienne (42)</span>
+      </div>
+      <a href="{% url 'index' %}" class="transition-colors hover:text-white">Retour à la boutique</a>
+    </div>
+  </footer>
+</body>
+</html>

@@ -123,9 +123,9 @@
 
                     <div class="site-header-account flex items-center gap-3">
 
-                        <span class="hidden max-w-[12rem] truncate text-sm text-white/80 sm:inline">
-                            {{ user.get_full_name|default:user.email }}
-                        </span>
+                        <a href="{% url 'profile' %}" class="hidden max-w-[12rem] truncate text-sm text-white/80 transition-colors hover:text-white sm:inline">
+                            {{ user.get_full_name|default:user.email|default:user.username }}
+                        </a>
 
                         <form method="post" action="{% url 'logout' %}">
                             {% csrf_token %}
@@ -142,7 +142,7 @@
                 {% else %}
 
                     <a
-                        href="{% url 'google_login' %}"
+                        href="{% url 'login' %}"
                         class="site-header-login flex items-center gap-2 bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
                     >
 

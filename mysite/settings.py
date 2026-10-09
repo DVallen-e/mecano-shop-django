@@ -48,10 +48,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     #my apps
 
     'shop',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.apple',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -84,6 +90,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/profile/'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 
 # Database
@@ -158,6 +174,26 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 GOOGLE_REDIRECT_URI = "http://127.0.0.1:8000/auth/google/callback/"
+
+APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID", "")
+APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID", "")
+APPLE_KEY_ID = os.getenv("APPLE_KEY_ID", "")
+APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY", "").replace("\\n", "\n")
+APPLE_LOGIN_ENABLED = all(
+    (APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY)
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    "apple": {
+        "APP": {
+            "client_id": APPLE_CLIENT_ID,
+            "secret": APPLE_KEY_ID,
+            "key": APPLE_TEAM_ID,
+            "certificate_key": APPLE_PRIVATE_KEY,
+        },
+        "SCOPE": ["email", "name"],
+    },
+}
 
 # Doar pentru local asa trebuie https
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
