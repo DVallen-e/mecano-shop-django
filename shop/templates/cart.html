@@ -77,6 +77,9 @@
     {% if checkout_error %}
       <p class="cart-alert" role="alert">{{ checkout_error }}</p>
     {% endif %}
+    {% for message in messages %}
+      <p class="cart-alert" role="status">{{ message }}</p>
+    {% endfor %}
 
     {% if not cart_items %}
       <section class="cart-empty">
@@ -124,6 +127,7 @@
                       </a>
                       <p class="cart-item__description">{{ item.product.description }}</p>
                       <p class="cart-item__price">{{ item.product.price|floatformat:2 }} €</p>
+                      <p>{{ item.stock_quantity }} en stock</p>
                     </div>
 
                     <div class="cart-item__controls">
@@ -164,19 +168,23 @@
               <div class="cart-contact__fields">
                 <label>
                   <span>Prénom</span>
-                  <input name="first_name" type="text" placeholder="Jean" autocomplete="given-name" required>
+                  <input name="first_name" type="text" placeholder="Jean" autocomplete="given-name" value="{{ checkout_form.first_name.value|default:'' }}" required>
+                  {{ checkout_form.first_name.errors }}
                 </label>
                 <label>
                   <span>Nom</span>
-                  <input name="last_name" type="text" placeholder="Dupont" autocomplete="family-name" required>
+                  <input name="last_name" type="text" placeholder="Dupont" autocomplete="family-name" value="{{ checkout_form.last_name.value|default:'' }}" required>
+                  {{ checkout_form.last_name.errors }}
                 </label>
                 <label>
                   <span>E-mail</span>
-                  <input name="email" type="email" placeholder="jean@exemple.fr" autocomplete="email" required>
+                  <input name="email" type="email" placeholder="jean@exemple.fr" autocomplete="email" value="{{ checkout_form.email.value|default:'' }}" required>
+                  {{ checkout_form.email.errors }}
                 </label>
                 <label>
                   <span>Téléphone</span>
-                  <input name="phone" type="tel" placeholder="06 00 00 00 00" autocomplete="tel" required>
+                  <input name="phone" type="tel" placeholder="06 00 00 00 00" autocomplete="tel" value="{{ checkout_form.phone.value|default:'' }}" required>
+                  {{ checkout_form.phone.errors }}
                 </label>
               </div>
             </section>
@@ -197,6 +205,9 @@
                   <span class="cart-summary__free">Gratuits</span>
                 {% endif %}
               </div>
+              {% if subtotal < free_shipping_threshold %}
+                <p>Livraison gratuite dès {{ free_shipping_threshold|floatformat:0 }} € d’achat.</p>
+              {% endif %}
             </div>
             <div class="cart-summary__total">
               <div>
@@ -209,7 +220,7 @@
               Confirmer la commande
             </button>
             <p class="cart-summary__note">
-              Aucun paiement immédiat. La compatibilité des pièces est vérifiée par l’atelier avant confirmation.
+              Vous serez redirigé vers Stripe pour payer. Le stock est réservé pendant le paiement.
             </p>
             <div class="cart-summary__security">
               <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">

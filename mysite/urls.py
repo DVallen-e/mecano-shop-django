@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.index, name="index"),
     path("product=<slug:slug>/", views.product_detail, name="product_detail"),
+    # django-allauth owns the Apple OAuth start/callback routes under /accounts/.
     path("accounts/", include("allauth.urls")),
     path("", include("shop.urls")),
 ]
@@ -36,3 +37,4 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
+"""Root URL routing for Django Admin, the shop, and django-allauth endpoints."""

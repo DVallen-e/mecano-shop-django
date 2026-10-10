@@ -73,10 +73,14 @@
 
                 {% for product in products %}
 
-                    <a
-                        href="{% url 'product_detail' product.slug %}"
-                        class="flex items-center gap-3 py-3 transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
-                    >
+                    {% if product.stock_quantity %}
+                        <a
+                            href="{% url 'product_detail' product.slug %}"
+                            class="flex items-center gap-3 py-3 transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+                        >
+                    {% else %}
+                        <div class="flex cursor-not-allowed items-center gap-3 py-3 opacity-60" aria-disabled="true">
+                    {% endif %}
 
                         <!-- Product image -->
 
@@ -146,32 +150,33 @@
                                     €
                                 </span>
                             </p>
+                            <p class="mt-1 text-xs text-gray-400">
+                                {% if product.stock_quantity %}
+                                    {{ product.stock_quantity }} en stock
+                                {% else %}
+                                    Produit indisponible — hors stock
+                                {% endif %}
+                            </p>
 
                         </div>
 
 
                         <!-- Product details -->
 
-                        <span
-                            class="shrink-0 bg-brand p-2.5 text-white transition-colors"
-                            aria-hidden="true"
-                        >
+                        {% if product.stock_quantity %}
+                            <span class="shrink-0 bg-brand p-2.5 text-white transition-colors" aria-hidden="true">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 12h14"/>
+                                    <path d="m12 5 7 7-7 7"/>
+                                </svg>
+                            </span>
+                        {% endif %}
 
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path d="M5 12h14"/>
-                                <path d="m12 5 7 7-7 7"/>
-                            </svg>
-
-                        </span>
-
-                    </a>
+                    {% if product.stock_quantity %}
+                        </a>
+                    {% else %}
+                        </div>
+                    {% endif %}
 
                 {% endfor %}
 
@@ -184,6 +189,7 @@
 
                 {% for product in products %}
 
+                    {% if product.stock_quantity %}
                     <a
                         href="{% url 'product_detail' product.slug %}"
                         class="
@@ -202,6 +208,18 @@
                             focus-visible:outline-brand
                         "
                     >
+                    {% else %}
+                    <div
+                        class="
+                            product-card
+                            flex cursor-not-allowed flex-col
+                            border border-white/10
+                            bg-surface-light
+                            opacity-60
+                        "
+                        aria-disabled="true"
+                    >
+                    {% endif %}
 
                         <!-- Product image -->
 
@@ -298,10 +316,18 @@
                                 </span>
 
                             </div>
+                            <p class="mt-1 text-xs text-gray-400">
+                                {% if product.stock_quantity %}
+                                    {{ product.stock_quantity }} en stock
+                                {% else %}
+                                    Produit indisponible — hors stock
+                                {% endif %}
+                            </p>
 
 
                             <!-- Product details -->
 
+                            {% if product.stock_quantity %}
                             <span
                                 class="
                                     flex w-full
@@ -331,10 +357,19 @@
                                 Voir le produit
 
                             </span>
+                            {% else %}
+                            <span class="flex w-full items-center justify-center bg-white/10 py-2 text-sm font-bold text-gray-400">
+                                Produit indisponible — hors stock
+                            </span>
+                            {% endif %}
 
                         </div>
 
+                    {% if product.stock_quantity %}
                     </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
 
                 {% endfor %}
 

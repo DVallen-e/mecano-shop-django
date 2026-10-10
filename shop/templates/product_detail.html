@@ -60,12 +60,12 @@
                 <p class="product-total" data-product-total>Total pour 1 article</p>
             </div>
 
-            {% if product.in_stock and user.is_authenticated %}
+            {% if product.stock_quantity and user.is_authenticated %}
                 <form class="product-purchase" data-product-purchase method="post" action="{% url 'add_to_cart' product.slug %}">
                     {% csrf_token %}
                     <div class="product-quantity" aria-label="Quantité">
                         <button type="button" data-quantity-step="-1" aria-label="Diminuer la quantité">−</button>
-                        <input type="number" name="quantity" value="1" min="1" aria-label="Quantité" data-quantity-input>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" aria-label="Quantité" data-quantity-input>
                         <button type="button" data-quantity-step="1" aria-label="Augmenter la quantité">+</button>
                     </div>
                     <button class="product-add-button" type="submit">
@@ -73,7 +73,7 @@
                     </button>
                     <a class="product-back-button" href="{% url 'index' %}">← Retour</a>
                 </form>
-            {% elif product.in_stock %}
+            {% elif product.stock_quantity %}
                 <a
                     class="product-add-button inline-flex items-center justify-center"
                     href="{% url 'login' %}?next={% url 'product_detail' product.slug %}"
@@ -89,7 +89,7 @@
                 <div class="product-benefit">
                     <span class="product-benefit-icon" aria-hidden="true">📦</span>
                     <strong>Livraison gratuite</strong>
-                    <span>dès 80 €</span>
+                    <span>dès 120 €</span>
                 </div>
                 <div class="product-benefit">
                     <span class="product-benefit-icon" aria-hidden="true">🔧</span>
@@ -118,7 +118,7 @@
             </div>
             <div class="product-spec">
                 <dt>Disponibilité</dt>
-                <dd>{% if product.in_stock %}En stock{% else %}Indisponible{% endif %}</dd>
+                <dd>{% if product.stock_quantity %}{{ product.stock_quantity }} en stock{% else %}Indisponible{% endif %}</dd>
             </div>
             <div class="product-spec">
                 <dt>Prix</dt>

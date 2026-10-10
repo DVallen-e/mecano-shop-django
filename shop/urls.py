@@ -1,12 +1,23 @@
+"""Named routes for storefront, checkout, Stripe callbacks, and authentication."""
+
 from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Checkout is split into an authenticated order action, user return page,
+    # and a server-to-server webhook endpoint.
     path("", views.index, name="index"),
     path("product=/<slug:slug>/", views.product_detail, name="product_detail"),
     path("cart/", views.cart, name="cart"),
     path("cart/add/<slug:slug>/", views.add_to_cart, name="add_to_cart"),
     path("cart/remove/<slug:slug>/", views.remove_from_cart, name="remove_from_cart"),
+    path(
+        "orders/<int:order_id>/pay/",
+        views.create_checkout_session,
+        name="create_checkout_session",
+    ),
+    path("payments/return/", views.payment_return, name="payment_return"),
+    path("payments/webhook/stripe/", views.stripe_webhook, name="stripe_webhook"),
     path("login/", views.login_page, name="login"),
     path("profile/", views.profile, name="profile"),
     path("auth/google/", views.google_login, name="google_login"),

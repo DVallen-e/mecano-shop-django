@@ -5,13 +5,18 @@ document.querySelectorAll("[data-product-purchase]").forEach((form) => {
     const priceAmount = price.querySelector("[data-price-amount]");
     const totalLabel = details.querySelector("[data-product-total]");
     const unitPrice = Number(price.dataset.productPrice);
+    const maxQuantity = Number.parseInt(quantityInput.max, 10);
 
     if (!quantityInput || !Number.isFinite(unitPrice)) {
         return;
     }
 
     const updatePrice = () => {
-        const quantity = Math.max(1, Number.parseInt(quantityInput.value, 10) || 1);
+        const quantity = Math.min(
+            maxQuantity,
+            Math.max(1, Number.parseInt(quantityInput.value, 10) || 1),
+        );
+        quantityInput.value = String(quantity);
         const total = unitPrice * quantity;
 
         priceAmount.textContent = new Intl.NumberFormat("fr-FR", {
@@ -26,7 +31,9 @@ document.querySelectorAll("[data-product-purchase]").forEach((form) => {
         button.addEventListener("click", () => {
             const step = Number(button.dataset.quantityStep);
             const currentQuantity = Number.parseInt(quantityInput.value, 10) || 1;
-            quantityInput.value = String(Math.max(1, currentQuantity + step));
+            quantityInput.value = String(
+                Math.min(maxQuantity, Math.max(1, currentQuantity + step)),
+            );
             updatePrice();
         });
     });

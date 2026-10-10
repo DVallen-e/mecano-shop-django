@@ -1,3 +1,5 @@
+"""Adds admin-managed characteristics displayed on product detail pages."""
+
 from django.db import migrations, models
 import django.db.models.deletion
 

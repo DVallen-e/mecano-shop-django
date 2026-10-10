@@ -1,4 +1,8 @@
+"""Template context helpers shared by pages rendered for the current request."""
+
+
 def cart_summary(request):
+    """Expose a safe item count for the site header without querying products."""
     cart = request.session.get("cart", {})
     item_count = 0
 

@@ -31,8 +31,8 @@ ALLOWED_HOSTS = []
 
 from django.utils.translation import gettext_lazy as _
 
-# Admin and the rest of the site stay in French. Listing English here lets
-# LocaleMiddleware follow the browser Accept-Language header instead of LANGUAGE_CODE.
+# The storefront and Admin use French; LocaleMiddleware can select among the
+# configured languages based on the browser's Accept-Language header.
 LANGUAGES = [
     ('fr', _('Français')),
 ]
@@ -52,7 +52,7 @@ INSTALLED_APPS = [
 
     #my apps
 
-    'shop',
+    'shop.apps.ShopConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -96,6 +96,10 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# Google uses the custom OAuth views in shop/views.py. Apple sign-in is routed
+# through django-allauth, whose provider is enabled in INSTALLED_APPS below.
+# For Google, register GOOGLE_REDIRECT_URI in Google Cloud Console. For Apple,
+# configure the Services ID, Team ID, Key ID, and private key in the environment.
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/profile/'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -170,11 +174,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Set these in the environment from the Google Cloud OAuth client configuration.
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
+# Must exactly match the callback URL registered for the Google OAuth client.
 GOOGLE_REDIRECT_URI = "http://127.0.0.1:8000/auth/google/callback/"
 
+# Apple credentials are used by django-allauth to sign and validate the OAuth
+# client secret. Set all four variables to enable the Apple button in the UI.
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID", "")
 APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID", "")
 APPLE_KEY_ID = os.getenv("APPLE_KEY_ID", "")
@@ -183,6 +191,11 @@ APPLE_LOGIN_ENABLED = all(
     (APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY)
 )
 
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+# Apple Pay and Google Pay are presented by Stripe Checkout when enabled and
+# eligible; no separate wallet credentials are configured in Django here.
 SOCIALACCOUNT_PROVIDERS = {
     "apple": {
         "APP": {
@@ -195,5 +208,5 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-# Doar pentru local asa trebuie https
+# Local OAuth testing only: do not enable insecure transport in production.
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
